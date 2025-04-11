@@ -10,8 +10,12 @@ app.use(express.json());
 
 // Middleware for handling CORS
 
-app.use(cors());
-
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 // Middleware for logging requests
 app.get("/health", (req, res) => {
   res.send("Server is running");

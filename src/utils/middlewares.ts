@@ -8,6 +8,7 @@ export function isAuthorized(req: Request, res: Response, next: NextFunction) {
   const authHeaders = req.headers["authorization"];
   //   console.log(req.headers);
   const token = authHeaders?.split(" ")[1];
+  console.log(req.headers, token);
   if (token) {
     jwt.verify(
       token,

@@ -30,11 +30,11 @@ async function addBotReply(
 ) {
   try {
     const message = await deepSeekMessage(prompt);
-    const [result] = await connection.query(
+    await connection.query(
       `INSERT INTO messages (chat_id, message, user_id, sent_time) VALUES (?, ?, 1, ?)`,
       [chat_id, message, time]
     );
-    return result;
+    return message;
   } catch (error) {
     console.error("Error adding bot reply:", error);
     throw error;
@@ -49,14 +49,14 @@ export async function addMessage(
   time: string
 ) {
   try {
-    const [result] = await connection.query(
+    await connection.query(
       `INSERT INTO messages (chat_id, user_id, message, sent_time) VALUES (?, ?, ?, ?)`,
       [chat_id, user_id, message, time]
     );
 
-    await addBotReply(connection, chat_id, message, time);
+    const msg = await addBotReply(connection, chat_id, message, time);
 
-    return result;
+    return msg;
   } catch (error) {
     console.error("Error adding message:", error);
     throw error;

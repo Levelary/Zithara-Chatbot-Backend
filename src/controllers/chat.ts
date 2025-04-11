@@ -16,7 +16,13 @@ export const createNewChatController = async (
       req.body.chat_name || null
     );
     await connection.commit();
-    res.status(200).json({ message: "Chat created successfully", response });
+
+    const data = {
+      chat_id: response,
+      user_id: user_id,
+      chat_name: req.body.chat_name || "New Chat",
+    };
+    res.status(200).json({ message: "Chat created successfully", data });
   } catch (error: any) {
     console.log("Error occurred in createNewChatController:", error.message);
     await connection.rollback();
@@ -32,7 +38,8 @@ export const getChatsController = async (
 ): Promise<any> => {
   const connection = await db.promise().getConnection();
   try {
-    const { user_id, chat_id, search_term } = req.body;
+    const { user_id, chat_id, search_term } = req.query;
+    console.log("Request query:", req.query); // Log the request body for debugging
     await connection.beginTransaction();
     const response = await getChats(
       connection,
@@ -41,7 +48,9 @@ export const getChatsController = async (
       search_term ? (search_term as string) : null
     );
     await connection.commit();
-    res.status(200).json({ message: "Chats fetched successfully", response });
+    res
+      .status(200)
+      .json({ message: "Chats fetched successfully", data: response });
   } catch (error: any) {
     console.log("Error occurred in getChatsController:", error.message);
     await connection.rollback();
