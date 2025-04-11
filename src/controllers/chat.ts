@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { db } from "../utils/dbconfig";
-import { createNewChat, getChats } from "../databases/chat";
+import { createNewChat, getChats, updateChatName } from "../databases/chat";
 
 export const createNewChatController = async (
   req: Request,
@@ -53,6 +53,27 @@ export const getChatsController = async (
       .json({ message: "Chats fetched successfully", data: response });
   } catch (error: any) {
     console.log("Error occurred in getChatsController:", error.message);
+    await connection.rollback();
+    res.status(500).json({ error: "Internal Server Error: " + error.message });
+  } finally {
+    connection.release();
+  }
+};
+
+export const updateChatNameController = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const connection = await db.promise().getConnection();
+  try {
+    const { chat_name } = req.body;
+    const { chat_id } = req.params;
+    await connection.beginTransaction();
+    await updateChatName(connection, parseInt(chat_id), chat_name as string);
+    await connection.commit();
+    res.status(200).json({ message: "Chat name updated successfully" });
+  } catch (error: any) {
+    console.log("Error occurred in updateChatNameController:", error.message);
     await connection.rollback();
     res.status(500).json({ error: "Internal Server Error: " + error.message });
   } finally {

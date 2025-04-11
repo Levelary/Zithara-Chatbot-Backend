@@ -42,3 +42,18 @@ export async function getChats(
     throw error;
   }
 }
+
+export async function updateChatName(
+  connection: PoolConnection,
+  chat_id: number,
+  chat_name: string
+) {
+  try {
+    const query = `UPDATE chats SET chat_name = ? WHERE chat_id = ?`;
+    await connection.query(query, [chat_name, chat_id]);
+    return true;
+  } catch (error: any) {
+    console.log(`Error Occurred in updateChatName: ${error.message}`);
+    throw error;
+  }
+}
