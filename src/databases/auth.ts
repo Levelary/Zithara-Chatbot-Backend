@@ -11,25 +11,39 @@ export async function signup(
       `SELECT * FROM users WHERE email = ?`,
       [email]
     );
-    if (user.length > 0) {
+
+    console.log(user);
+
+    if (user.length === 0) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const query = `INSERT INTO users (email, password, username ,created_time) VALUES (?, ?, ?, NOW())`;
+      const [rows]: any[] = await connection.query(query, [
+        email,
+        hashedPassword,
+        username,
+      ]);
+
+      const user_id = rows.insertId;
+
+      const chat_query = `INSERT INTO chats (user_id, chat_name) VALUES (?, ?)`;
+
+      const [chat_rows]: any = await connection.query(chat_query, [
+        user_id,
+        "New Chat",
+      ]);
+      const chat_id = chat_rows.insertId;
+      console.log(user);
+
       return {
-        message: "User already registered",
-        status: 400,
+        status: 200,
+        chat_id,
+        message: "User registered successfully",
       };
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const query = `INSERT INTO users (email, password, username ,created_time) VALUES (?, ?, ?, NOW())`;
-    const [rows] = await connection.query(query, [
-      email,
-      hashedPassword,
-      username,
-    ]);
-    console.log(user);
-
     return {
-      status: 200,
-      rows,
+      message: "User already registered",
+      status: 400,
     };
   } catch (error: any) {
     console.log(`Error at signup: ${error.message}`);

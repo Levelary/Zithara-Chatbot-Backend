@@ -8,12 +8,11 @@ export const createNewChatController = async (
 ): Promise<any> => {
   const connection = await db.promise().getConnection();
   try {
-    const { user_id, chat_id } = req.body;
+    const { user_id } = req.body;
     await connection.beginTransaction();
     const response = await createNewChat(
       connection,
       user_id,
-      chat_id,
       req.body.chat_name || null
     );
     await connection.commit();
